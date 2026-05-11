@@ -18,18 +18,18 @@ public class ModHandler {
     }
 
     public int[] handle(File f) {
-        handleDirectory(f);
+        if (f.isDirectory()) {
+            this.handleDirectory(f);
+        }
+        if (f.isFile() && f.getName().endsWith(".java")) {
+            handleFile(f);
+        }
         return versionsTot;
     }
 
     public void handleDirectory(File f) {
         for (File subF : f.listFiles()) {
-            if (subF.isDirectory()) {
-                this.handleDirectory(subF);
-            }
-            if (subF.isFile() && subF.getName().endsWith(".java")) {
-                handleFile(subF);
-            }
+            handle(subF);
         }
     }
 

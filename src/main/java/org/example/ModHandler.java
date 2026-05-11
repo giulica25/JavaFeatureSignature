@@ -38,7 +38,7 @@ public class ModHandler {
         CompilationUnit cu = null;
         try {
             StaticJavaParser.getParserConfiguration().setLanguageLevel(
-                    ParserConfiguration.LanguageLevel.JAVA_24);
+                    ParserConfiguration.LanguageLevel.JAVA_25);
             cu = StaticJavaParser.parse(f);
             ModVisitor visitor = new ModVisitor();
             visitor.visit(cu, null);

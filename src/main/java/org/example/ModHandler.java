@@ -1,30 +1,27 @@
 package org.example;
 
+import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.visitor.VoidVisitor;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 
 public class ModHandler {
-    private int[] versionsTot;
+    FeatureUsageMap featureUsageMap;
     public ModHandler() {
-        versionsTot = new int[26];
-        for (int i = 0; i < 26; i++) {
-            versionsTot[i] = 0;
-        }
+        this.featureUsageMap = new FeatureUsageMap();
     }
 
-    public int[] handle(File f) {
+    public FeatureUsageMap handle(File f) {
         if (f.isDirectory()) {
             this.handleDirectory(f);
         }
         if (f.isFile() && f.getName().endsWith(".java")) {
             handleFile(f);
         }
-        return versionsTot;
+        return featureUsageMap;
     }
 
     public void handleDirectory(File f) {
@@ -33,25 +30,21 @@ public class ModHandler {
         }
     }
 
-    public void handleFile(File f) {
-        //System.out.println(f.getName());
-        CompilationUnit cu = null;
+    public void handleFile(File f) throws ParseProblemException {
+//        System.out.println("Analyzing file " + f.getPath());
         try {
             StaticJavaParser.getParserConfiguration().setLanguageLevel(
                     ParserConfiguration.LanguageLevel.JAVA_25);
-            cu = StaticJavaParser.parse(f);
+            CompilationUnit cu = StaticJavaParser.parse(f);
             ModVisitor visitor = new ModVisitor();
             visitor.visit(cu, null);
-            addToTotal(visitor.getVersions());
+            featureUsageMap.add(visitor.getFeatureUsageMap());
             //System.out.println(Arrays.toString(visitor.getVersions()));
-        } catch (Exception e) {
-            System.out.println("Encountered problem while running: " + e);
-        }
-    }
-
-    public void addToTotal(int[] versions) {
-        for (int i = 0; i < 26; i++) {
-            versionsTot[i] += versions[i];
+        } catch (ParseProblemException e) {
+            System.out.println("Encountered parsing error in file " + f.getPath());
+            System.out.println("Error message: " + e.getMessage());
+            throw e;
+        } catch (FileNotFoundException ignored) {
         }
     }
 }

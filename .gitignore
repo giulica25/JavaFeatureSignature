@@ -1,6 +1,7 @@
 ### Project ###
 repos.json
 results/
+plots/
 
 ### Java ###
 target/
